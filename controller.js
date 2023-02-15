@@ -61,7 +61,7 @@ class controller{
         return res.status(400).json({message: `Invalid password entered`});
       };
       const token = generateAccessToken(users._id, users.roles);
-      return res.json(token);
+      return res.json({"token": token, "id": users._id});
     } catch(err){
       console.log(err);
       res.status(400).json({message: 'Login error'});  
