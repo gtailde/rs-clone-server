@@ -4,6 +4,7 @@ const controller = require('./controller');
 const { check } = require("express-validator");
 const authMiddleware = require('./middleware/authMidlware');
 const roleMiddleware = require('./middleware/roleMiddleware');
+const checkToken = require('./middleware/checkMidlware');
 
 router.post('/registration', [
   check("username", "The field cannot be empty").notEmpty(),
@@ -16,6 +17,6 @@ router.post('/update', controller.updateUser);
 router.post('/deleteUser', controller.deleteUser);
 router.post('/addIMG', controller.addIMG);
 router.post('/deleteIMG', controller.deleteIMG);
-
+router.post('/check', checkToken,  controller.check)
 
 module.exports = router;

@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const User = require('./models/User');
 
-module.exports = async function checkEmail(email){
-  const User = mongoose.model('User', { email: String });
+async function checkEmail(email){
   const count = await User.countDocuments({ email: email });
   return count === 0;
 };
 
+module.exports = checkEmail;

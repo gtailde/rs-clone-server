@@ -5,8 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const { validationResult } = require('express-validator');
 const { secret } = require("./config");
-const { checkEmail } = require("./checker");
-
+const checkEmail = require("./checker");
 
 const generateAccessToken = (id, roles) => {
   const payload = {
@@ -31,7 +30,7 @@ class controller{
       };
       let EMAIL = '';
       if(email){
-        if(checkEmail(email)){
+        if(await checkEmail(email)){
           EMAIL = email;
         } else {
           res.status(400).json({message: 'Registration error, email has been used'});
@@ -52,7 +51,7 @@ class controller{
   async login(req, res){
     try{
       const { username, password, email } = req.body;
-      const users = await User.findOne({username});
+      const users = username ? await User.findOne({username}) : await User.findOne({email});
       if(!users){
         return res.status(400).json({message: `User ${users} was not found`});
       };
@@ -61,7 +60,7 @@ class controller{
         return res.status(400).json({message: `Invalid password entered`});
       };
       const token = generateAccessToken(users._id, users.roles);
-      return res.json({"token": token, "id": users._id});
+      return res.json({token: token, id: users._id});
     } catch(err){
       console.log(err);
       res.status(400).json({message: 'Login error'});  
@@ -92,17 +91,18 @@ class controller{
 
   async updateUser(req, res){
     try{
-      const { _id, username, password, name } = req.body;
+      const { _id, username, password, name, email } = req.body;
       const user = await User.findOne({_id});
       if(!user){
         return res.status(400).json({message: `User with ${_id} was not found`});
       }; 
+
       if(username){
         user.username = username;
-      } 
-      else if(email){
-        if(checkEmail(email) || email === ""){
+      } else if(email || email === ""){
+        if(await checkEmail(email) || email === ""){
           user.email = email;
+          console.log('ok')
         } else {
           return res.status(400).json({message: `Email already used. Error update`});
         };
@@ -176,6 +176,16 @@ class controller{
       res.status(400).json({message: `Error delete IMG ${err}`});  
     }  
   };
+
+  async check(req, res){
+    try {
+      return res.status(200).json(true);
+    } catch (err){
+      console.log(err)
+      return res.status(400).json({message: `Error check token ${err}`});
+    }
+  };
+
 };
 
 module.exports = new controller();
