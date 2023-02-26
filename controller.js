@@ -155,21 +155,21 @@ class controller{
 
   async deleteIMG(req, res){
     try{
-      const { _id, type, link} = req.body;
+      const { _id, link} = req.body;
       const user = await User.findOne({_id});
       if(!user){
         return res.status(400).json({message: `User ${user} was not found`});
       };
       if(user.img.profile.imgs.includes(link) || user.img.others.imgs.includes(link)){
-        if(type === "profile"){
+        if(user.img.profile.imgs.includes(link)){  
           user.img.profile.imgs.splice(user.img.profile.imgs.indexOf(link), 1);
-        } else {
+        } else if (user.img.others.imgs.includes(link)){
           user.img.others.imgs.splice(user.img.others.imgs.indexOf(link), 1);
         };
         await user.save();
         res.status(200).json({message: 'Image delated successfully'});  
       } else {
-        res.status(200).json({message: 'Image not found'});  
+        res.status(400).json({message: 'Image not found'});  
       };
     } catch(err){
       console.log(err);
