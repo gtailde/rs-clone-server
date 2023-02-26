@@ -43,7 +43,7 @@ app.post('/upload', (req, res) => {
       if (req.file == undefined) {
         res.status(400).send({ msg: 'Error: No File Selected!' });
       } else {
-        res.send({ msg: 'File Uploaded!', file: `http://localhost:5000/${req.file.filename}` });
+        res.send({ msg: 'File Uploaded!', file: `https://rs-clone-server-production-8682.up.railway.app/${req.file.filename}` });
       }
     }
   });
