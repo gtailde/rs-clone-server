@@ -14,7 +14,7 @@ const User = new Schema({
       saved: {type: String, default: '0'}
     }],
     others: [{
-      imgs: [{type: String}],
+      imgs: {type: String},
       likes: {type: String, default: '0'},
       saved: {type: String, default: '0'}
     }],

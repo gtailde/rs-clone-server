@@ -138,12 +138,20 @@ class controller{
       const { _id, type, link} = req.body;
       const user = await User.findOne({_id});
       if(!user){
-        return res.status(400).json({message: `User ${users} was not found`});
+        return res.status(400).json({message: `User ${user} was not found`});
       };
       if(type === "profile"){
-        user.img.profile.imgs.push(link);
+        user.img.profile.push({
+          imgs: link,
+          likes: "0",
+          saved: "0" 
+        }); 
       } else {
-        user.img.others.imgs.push(link);
+        user.img.others.push({
+          imgs: link,
+          likes: "0",
+          saved: "0" 
+        }); 
       };
       await user.save();
       res.status(200).json({message: 'Image extracted successfully'});  
@@ -156,21 +164,21 @@ class controller{
   async deleteIMG(req, res){
     try{
       const { _id, link} = req.body;
-      const user = await User.findOne({_id});
+      const user = await User.findOne({_id}); 
       if(!user){
         return res.status(400).json({message: `User ${user} was not found`});
       };
-      if(user.img.profile.imgs.includes(link) || user.img.others.imgs.includes(link)){
-        if(user.img.profile.imgs.includes(link)){  
-          user.img.profile.imgs.splice(user.img.profile.imgs.indexOf(link), 1);
-        } else if (user.img.others.imgs.includes(link)){
-          user.img.others.imgs.splice(user.img.others.imgs.indexOf(link), 1);
-        };
-        await user.save();
-        res.status(200).json({message: 'Image delated successfully'});  
+      const profileIndex = user.img.profile.findIndex((item) => item.imgs === link);
+      const othersIndex = user.img.others.findIndex((item) => item.imgs === link);
+      if (profileIndex >= 0) {
+        await User.updateOne({ _id: _id }, { $pull: { 'img.profile': user.img.profile[profileIndex] } });
+        res.status(200).json({ message: `Image deleted successfully`});
+      } else if (othersIndex >= 0) {
+        await User.updateOne({ _id: _id }, { $pull: { 'img.others': user.img.others[othersIndex] } });
+        res.status(200).json({ message: `Image deleted successfully`});
       } else {
-        res.status(400).json({message: 'Image not found'});  
-      };
+        res.status(400).json({message: `Image ${link} not found`}); 
+      }
     } catch(err){
       console.log(err);
       res.status(400).json({message: `Error delete IMG ${err}`});  
